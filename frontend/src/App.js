@@ -38,7 +38,7 @@ const App = () => {
                 },
                 "&::-webkit-scrollbar-thumb": {
                     boxShadow: 'inset 0 0 6px rgba(0, 0, 0, 0.3)',
-                    backgroundColor: "#383769",
+                    backgroundColor: "#0072eb",
                 },
             },
             scrollbarStylesSoft: {
@@ -51,9 +51,9 @@ const App = () => {
             },
             palette: {
                 type: mode,
-                primary: { main: mode === "light" ? "#383769" : "#FFFFFF" },
-                textPrimary: mode === "light" ? "#383769" : "#FFFFFF",
-                borderPrimary: mode === "light" ? "#383769" : "#FFFFFF",
+                primary: { main: mode === "light" ? "#0072eb" : "#FFFFFF" },
+                textPrimary: mode === "light" ? "#0072eb" : "#FFFFFF",
+                borderPrimary: mode === "light" ? "#0072eb" : "#FFFFFF",
                 dark: { main: mode === "light" ? "#333333" : "#F3F3F3" },
                 light: { main: mode === "light" ? "#F3F3F3" : "#333333" },
                 tabHeaderBackground: mode === "light" ? "#EEE" : "#666",
@@ -74,7 +74,7 @@ const App = () => {
                 total: mode === "light" ? "#fff" : "#222",
                 messageIcons: mode === "light" ? "grey" : "#F3F3F3",
                 inputBackground: mode === "light" ? "#FFFFFF" : "#333",
-                barraSuperior: mode === "light" ? "linear-gradient(to right, #383769, #383769 , #383769)" : "#666",
+                barraSuperior: mode === "light" ? "linear-gradient(to right, #0072eb, #0072eb , #0072eb)" : "#666",
 				boxticket: mode === "light" ? "#EEE" : "#666",
 				campaigntab: mode === "light" ? "#ededed" : "#666",
 				mediainput: mode === "light" ? "#ededed" : "#1c1c1c",
