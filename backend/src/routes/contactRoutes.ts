@@ -12,6 +12,13 @@ contactRoutes.post(
   ImportPhoneContactsController.store
 );
 
+// Trata da importação de tabelas excel e csv
+contactRoutes.post(
+  "/contacts/import-from-csv",
+  isAuth,
+  ContactController.storeCSV
+);
+
 contactRoutes.get("/contacts", isAuth, ContactController.index);
 
 contactRoutes.get("/contacts/list", isAuth, ContactController.list);

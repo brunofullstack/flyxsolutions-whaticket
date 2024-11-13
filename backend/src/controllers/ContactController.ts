@@ -77,7 +77,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     name: Yup.string().required(),
     number: Yup.string()
       .required()
-      .matches(/^\d+$/, "Invalid number format. Only numbers is allowed.")
+      .matches(/^\d+$/, "Formato de número inválido.Apenas números são permitidos.")
   });
 
   try {
@@ -110,6 +110,68 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
 
   return res.status(200).json(contact);
 };
+
+// Trata da importação de tabelas excel e csv
+export const storeCSV = async (req: Request, res: Response): Promise<Response> => {
+  const { companyId } = req.user;
+  const contacts = req.body.contacts;  // Extrair o array de contatos do objeto recebido
+
+  // Definir o esquema de validação para cada contato
+  const schema = Yup.object().shape({
+    name: Yup.string().required(),
+    number: Yup.string()
+      .required()
+      .matches(/^\d+$/, "Formato de número inválido. Apenas números são permitidos."),
+    email: Yup.string().email().optional()
+  });
+
+  try {
+    // Validar e processar cada contato do array
+    const createdContacts = [];
+    for (const contact of contacts) {
+      console.log("contact: ", contact);
+      await schema.validate(contact);  // Validar os dados
+
+      // Sanitizar o número de telefone
+      contact.number = contact.number.toString().replace("-", "").replace(" ", "");  
+
+      // Verificar se o número é válido
+      await CheckIsValidContact(contact.number, companyId);
+
+      // Criar o contato no banco, ignorando contatos duplicados
+      const newContact = await CreateContactService({
+        name: contact.name,
+        number: contact.number,
+        email: contact.email || "",  // Deixa o email vazio se não for fornecido
+        profilePicUrl: "",  // Valor vazio para profilePicUrl
+        companyId,
+        extraInfo: []  // Valor vazio para extraInfo
+      });
+
+      if (newContact) {
+        // Se o contato foi criado com sucesso, adicioná-lo à lista de contatos criados
+        createdContacts.push(newContact);
+
+        // Emitir evento para a empresa no canal principal
+        const io = getIO();
+        io.to(`company-${companyId}-mainchannel`).emit(`company-${companyId}-contact`, {
+          action: "create",
+          contact: newContact
+        });
+      }
+    }
+
+    // Retornar a resposta com todos os contatos criados
+    return res.status(200).json({ message: "Contatos importados com sucesso.", createdContacts });
+
+  } catch (err: any) {
+    console.error("Erro ao processar contatos CSV:", err);
+    return res.status(400).json({ error: err.message });
+  }
+};
+
+
+
 
 export const show = async (req: Request, res: Response): Promise<Response> => {
   const { contactId } = req.params;
