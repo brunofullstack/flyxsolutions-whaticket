@@ -37,6 +37,10 @@ import NewTicketModal from "../../components/NewTicketModal";
 import { SocketContext } from "../../context/Socket/SocketContext";
 
 import {CSVLink} from "react-csv";
+import { process } from 'process';
+import * as XLSX from "xlsx"; // Biblioteca para leitura de arquivos xls/xlsx
+import { CSVReader } from "react-papaparse"; // Biblioteca para leitura de arquivos CSV
+
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_CONTACTS") {
@@ -101,6 +105,8 @@ const Contacts = () => {
   const [pageNumber, setPageNumber] = useState(1);
   const [searchParam, setSearchParam] = useState("");
   const [contacts, dispatch] = useReducer(reducer, []);
+  const [contactsCSV, setContacts] = useState([]);
+  const [fileData, setFileData] = useState(null);
   const [selectedContactId, setSelectedContactId] = useState(null);
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [newTicketModalOpen, setNewTicketModalOpen] = useState(false);
@@ -168,6 +174,45 @@ const Contacts = () => {
     setSelectedContactId(null);
     setContactModalOpen(false);
   };
+
+// Função para processar arquivos XLSX
+const handleFileUpload = (e) => {
+  const file = e.target.files[0];
+  const reader = new FileReader();
+
+  reader.onload = async (event) => {
+    const data = new Uint8Array(event.target.result);
+    const workbook = XLSX.read(data, { type: "array" });
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+    // Filtrar apenas as colunas "Nome", "Email" e "Telefone (recomendado)"
+    const formattedData = worksheet.map((row) => ({
+      name: row['Nome'],
+      number: row['Telefone (recomendado)'],
+      email: row['Email'],
+    })).filter(row => row.name && row.number && row.email); // Filtra os dados completos
+
+    setFileData(formattedData);
+
+    // Chama a função de importação de leads automaticamente
+    await handleImportLeads(formattedData);
+  };
+  
+  reader.readAsArrayBuffer(file);
+};
+
+// Função para salvar os contatos no banco de dados
+const handleImportLeads = async (fileData) => {
+  try {
+    await api.post("/contacts/import-from-csv", { contacts: fileData });
+    toast.success("Leads importados com sucesso!");
+    history.go(0); // Atualiza a página
+  } catch (err) {
+    toast.error("Erro ao importar leads.");
+  }
+};
+
 
   // const handleSaveTicket = async contactId => {
   // 	if (!contactId) return;
@@ -251,7 +296,7 @@ const Contacts = () => {
             ? `${i18n.t("contacts.confirmationModal.deleteTitle")} ${
                 deletingContact.name
               }?`
-            : `${i18n.t("contacts.confirmationModal.importTitlte")}`
+            : `${i18n.t("contacts.confirmationModal.importTitle")}`
         }
         open={confirmOpen}
         onClose={setConfirmOpen}
@@ -300,7 +345,20 @@ const Contacts = () => {
           <Button	variant="contained" color="primary"> 
           EXPORTAR CONTATOS 
           </Button>
-          </CSVLink>		  
+          </CSVLink>
+
+          <input
+            type="file"
+            accept=".csv,.xlsx,.xls"
+            onChange={handleFileUpload}
+            style={{ display: "none" }}
+            id="upload-file"
+          />
+          <label htmlFor="upload-file">
+            <Button variant="contained" color="primary" component="span">
+              Importar leads
+            </Button>
+          </label>
 
         </MainHeaderButtonsWrapper>
       </MainHeader>
