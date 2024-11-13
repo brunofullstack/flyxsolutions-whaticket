@@ -49,6 +49,7 @@
     "react-input-mask": "^2.0.4",
     "react-modal-image": "^2.5.0",
     "react-number-format": "^4.6.4",
+    "react-papaparse": "^4.4.0",
     "react-qr-code": "^2.0.7",
     "react-query": "^3.39.3",
     "react-router-dom": "^5.2.0",
@@ -64,6 +65,7 @@
     "use-sound": "^2.0.1",
     "uuid": "^8.3.2",
     "webpack": "^5.95.0",
+    "xlsx": "^0.18.5",
     "yup": "^0.32.8"
   },
   "scripts": {
@@ -75,18 +77,6 @@
   },
   "eslintConfig": {
     "extends": "react-app"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
@@ -101,5 +91,17 @@
     "react-app-rewired": "^2.2.1",
     "stream-browserify": "^3.0.0",
     "util": "^0.12.5"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }
